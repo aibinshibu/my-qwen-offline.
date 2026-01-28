@@ -6,7 +6,7 @@ const ASSETS = [
     './manifest.json',
     './assets/index.js',
     './assets/worker.js',
-    './assets/single-thread/wllama.wasm',
+    './wllama.wasm',
     'https://huggingface.co/aibinshibuc/my-qwen-offline/resolve/main/qwen-bio-q4_k_m.gguf'
 ];
 
