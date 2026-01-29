@@ -27,8 +27,8 @@
     </div>
 
     <script type="module">
-        // 1. IMPORT FROM CDN (Reliable Public Server)
-        import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama/esm/index.js';
+        // 1. Load the Engine from the Public CDN (Guaranteed to exist)
+        import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/index.js';
 
         let wllama;
         const statusDiv = document.getElementById('status');
@@ -36,16 +36,17 @@
         const sendBtn = document.getElementById('send-btn');
         const chatBox = document.getElementById('chat-box');
 
+        // Register the Service Worker for Offline support
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./service-worker.js');
         }
 
         async function init() {
-            statusDiv.innerText = "Loading engine from CDN...";
+            statusDiv.innerText = "Loading engine...";
             
-            // 2. CONFIGURE TO USE CDN WASM
+            // 2. Configure the Engine to use the CDN WASM file
             const config = {
-                "wllama.wasm": "https://cdn.jsdelivr.net/npm/@wllama/wllama/esm/single-thread/wllama.wasm"
+                "wllama.wasm": "https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/single-thread/wllama.wasm"
             };
             
             wllama = new Wllama(config);
@@ -53,8 +54,8 @@
             statusDiv.innerText = "Downloading Model from HuggingFace...";
             
             try {
-                // PASTE YOUR HUGGING FACE LINK BELOW
-                const modelUrl = 'https://huggingface.co/YOUR_USERNAME/YOUR_REPO/resolve/main/qwen-bio-q4_k_m.gguf';
+                // 3. YOUR EXACT HUGGING FACE LINK
+                const modelUrl = 'https://huggingface.co/aibinshibuc/my-qwen-offline/resolve/main/qwen-bio-q4_k_m.gguf';
                 
                 await wllama.loadModelFromUrl(modelUrl, {
                     n_ctx: 2048,
