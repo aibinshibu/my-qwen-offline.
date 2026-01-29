@@ -3,77 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qwen Bio (Online Mode)</title>
+    <title>Qwen Bio (Fixed)</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background: #fff3e0; }
-        #status { padding: 15px; background: #fff; border: 2px solid #ff9800; border-radius: 8px; margin-bottom: 20px; font-weight: bold; }
-        #chat-box { height: 400px; overflow-y: scroll; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 8px; }
-        input { width: 70%; padding: 10px; margin-top: 10px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; }
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; background: #f0f2f5; }
+        #status { padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px; white-space: pre-wrap; font-family: monospace; font-size: 12px; }
+        #chat-box { height: 400px; overflow-y: scroll; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-bottom: 10px;}
+        input { width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>⚠️ Cleanup & Repair</h1>
-    <div id="status">Initializing Factory Reset...</div>
+    <h1>Qwen Bio (Manual Path Fix)</h1>
+    <div id="status">Initializing...</div>
     <div id="chat-box"></div>
-    <input type="text" id="user-input" placeholder="Type here..." disabled>
-    <button id="send-btn" onclick="sendMessage()" disabled>Send</button>
+    <div style="display: flex; gap: 5px;">
+        <input type="text" id="user-input" placeholder="Type a message..." disabled>
+        <button id="send-btn" onclick="sendMessage()" disabled>Send</button>
+    </div>
 
     <script type="module">
-        import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/index.js';
+        // 1. Import Library from CDN
+        import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/index.js';
 
         const statusDiv = document.getElementById('status');
 
-        // --- STEP 1: THE KILL SWITCH ---
-        // This forces your phone to delete the "Zombie" offline cache
-        async function nukeCache() {
-            if ('serviceWorker' in navigator) {
-                // Unregister all Service Workers
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                for(let registration of registrations) {
-                    console.log('Unregistering SW:', registration);
-                    await registration.unregister();
-                }
-            }
-            // Delete all Caches
-            const keys = await caches.keys();
-            for (let key of keys) {
-                console.log('Deleting Cache:', key);
-                await caches.delete(key);
-            }
-            console.log('✅ CLEANUP COMPLETE');
+        function log(msg) {
+            statusDiv.innerText += "\n" + msg;
+            console.log(msg);
         }
 
         async function init() {
-            statusDiv.innerText = "⏳ 1. Deleting old broken files...";
-            await nukeCache();
-            
-            statusDiv.innerText = "⏳ 2. Downloading Engine (Fresh)...";
+            log("1. Starting...");
+
+            // 2. FORCE UNREGISTER OLD SERVICE WORKERS (To be safe)
+            if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                for (let reg of regs) {
+                    log("   - Unregistering old SW");
+                    await reg.unregister();
+                }
+            }
+
+            // 3. DEFINE EXACT PATHS (No guessing allowed)
+            // We use 1.18.0 because it is very stable for single-thread CPU
+            const CONFIG_PATHS = {
+                "wllama.wasm": "https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/single-thread/wllama.wasm",
+            };
+
+            log("2. Loading Engine...");
             
             try {
-                // Use the Single-Thread WASM explicitly
-                const wllama = new Wllama({
-                    "wllama.wasm": "https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/single-thread/wllama.wasm"
-                });
-
-                statusDiv.innerText = "⏳ 3. Downloading Your Model...";
+                // Initialize Wllama with strict config
+                const wllama = new Wllama(CONFIG_PATHS);
                 
-                // YOUR MODEL LINK
+                log("3. Engine Loaded. Downloading Model...");
+                log("   (This relies on your HuggingFace link being correct)");
+
+                // 4. LOAD YOUR MODEL
+                // Double check this link: it must end in .gguf
                 const modelUrl = 'https://huggingface.co/aibinshibuc/my-qwen-offline/resolve/main/qwen-bio-q4_k_m.gguf';
                 
-                await wllama.loadModelFromUrl(modelUrl, { n_ctx: 2048 });
-                
-                statusDiv.innerText = "✅ FIXED! The AI is working.";
-                statusDiv.style.borderColor = "green";
-                statusDiv.style.background = "#e8f5e9";
+                await wllama.loadModelFromUrl(modelUrl, {
+                    n_ctx: 2048,
+                    // We can reduce thread count to 1 to be safe on phones
+                    n_threads: 1 
+                });
+
+                log("✅ SUCCESS: Model Ready!");
                 document.getElementById('user-input').disabled = false;
                 document.getElementById('send-btn').disabled = false;
-
+                
                 window.wllama_instance = wllama; // Save for chatting
 
             } catch (e) {
-                statusDiv.innerText = "❌ Error: " + e.message;
-                console.error(e);
+                log("❌ ERROR: " + e.message);
+                if(e.message.includes("404")) {
+                    log("   -> Check your HuggingFace link.");
+                } else if(e.message.includes("magic word")) {
+                     log("   -> The CDN blocked the WASM file load.");
+                }
             }
         }
 
@@ -83,12 +91,16 @@
             const text = input.value;
             if (!text) return;
 
-            chatBox.innerHTML += `<div style="text-align:right; margin:10px; background:#e3f2fd; padding:8px; border-radius:5px;">${text}</div>`;
+            chatBox.innerHTML += `<div style="text-align:right; margin:5px; background:#e3f2fd; padding:8px; border-radius:5px;">${text}</div>`;
             input.value = '';
 
-            const response = await window.wllama_instance.createCompletion(text, { n_predict: 200 });
-            
-            chatBox.innerHTML += `<div style="text-align:left; margin:10px; background:#f5f5f5; padding:8px; border-radius:5px;">${response}</div>`;
+            // Generate
+            const result = await window.wllama_instance.createCompletion(text, {
+                n_predict: 200,
+                sampling: { temp: 0.5, top_k: 40, top_p: 0.9 }
+            });
+
+            chatBox.innerHTML += `<div style="text-align:left; margin:5px; background:#f1f1f1; padding:8px; border-radius:5px;">${result}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
         };
 
