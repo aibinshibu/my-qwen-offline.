@@ -1,16 +1,18 @@
-const CACHE_NAME = 'qwen-bio-cdn-v1'; // Changed name to force update
+// We changed the version to 'v4' to FORCE your phone to update
+const CACHE_NAME = 'qwen-bio-cdn-v4'; 
+
 const ASSETS = [
     './',
     './index.html',
     './manifest.json',
     
     // 1. Cache the CDN Engine Files
-    'https://cdn.jsdelivr.net/npm/@wllama/wllama/esm/index.js',
-    'https://cdn.jsdelivr.net/npm/@wllama/wllama/esm/single-thread/wllama.wasm',
-    'https://cdn.jsdelivr.net/npm/@wllama/wllama/esm/worker.js',
+    'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/index.js',
+    'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/single-thread/wllama.wasm',
+    'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/worker.js',
 
-    // 2. Cache Your Model (Paste your Hugging Face Link here)
-    'https://huggingface.co/YOUR_USERNAME/YOUR_REPO/resolve/main/qwen-bio-q4_k_m.gguf'
+    // 2. Cache YOUR Specific Model
+    'https://huggingface.co/aibinshibuc/my-qwen-offline/resolve/main/qwen-bio-q4_k_m.gguf'
 ];
 
 self.addEventListener('install', (e) => {
