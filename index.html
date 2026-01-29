@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +18,7 @@
     </style>
 </head>
 <body>
-    <h2>Qwen Bio (Offline)</h2>
+    <h2>Qwen Bio (CDN Version)</h2>
     <div id="status">Initializing...</div>
     <div id="chat-box"></div>
     <div style="display: flex; gap: 5px;">
@@ -28,8 +27,8 @@
     </div>
 
     <script type="module">
-        // Import from the local assets folder
-        import { Wllama } from './assets/index.js';
+        // 1. IMPORT FROM CDN (Reliable Public Server)
+        import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama/esm/index.js';
 
         let wllama;
         const statusDiv = document.getElementById('status');
@@ -42,19 +41,22 @@
         }
 
         async function init() {
-            statusDiv.innerText = "Loading engine...";
+            statusDiv.innerText = "Loading engine from CDN...";
             
-            // Point to the single-thread WASM file in our assets
+            // 2. CONFIGURE TO USE CDN WASM
             const config = {
-                "wllama.wasm": "./wllama.wasm"
+                "wllama.wasm": "https://cdn.jsdelivr.net/npm/@wllama/wllama/esm/single-thread/wllama.wasm"
             };
             
             wllama = new Wllama(config);
 
-            statusDiv.innerText = "Loading Model: qwen-bio-q4_k_m.gguf...";
+            statusDiv.innerText = "Downloading Model from HuggingFace...";
             
             try {
-                await wllama.loadModelFromUrl('https://huggingface.co/aibinshibuc/my-qwen-offline/resolve/main/qwen-bio-q4_k_m.gguf', {
+                // PASTE YOUR HUGGING FACE LINK BELOW
+                const modelUrl = 'https://huggingface.co/YOUR_USERNAME/YOUR_REPO/resolve/main/qwen-bio-q4_k_m.gguf';
+                
+                await wllama.loadModelFromUrl(modelUrl, {
                     n_ctx: 2048,
                 });
                 statusDiv.innerText = "✅ Ready! Offline mode active.";
