@@ -1,15 +1,15 @@
-// We changed the version to 'v4' to FORCE your phone to update
-const CACHE_NAME = 'qwen-bio-cdn-v4'; 
+// Version 5 to force a clean update
+const CACHE_NAME = 'qwen-bio-cdn-v5'; 
 
 const ASSETS = [
     './',
     './index.html',
     './manifest.json',
     
-    // 1. Cache the CDN Engine Files
-    'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/index.js',
-    'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/single-thread/wllama.wasm',
-    'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/worker.js',
+    // 1. Cache the CDN Engine Files (Version 2.3.1)
+    'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/index.js',
+    'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/single-thread/wllama.wasm',
+    'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/worker.js',
 
     // 2. Cache YOUR Specific Model
     'https://huggingface.co/aibinshibuc/my-qwen-offline/resolve/main/qwen-bio-q4_k_m.gguf'
