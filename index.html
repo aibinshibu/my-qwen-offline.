@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-    <h2>Qwen Bio (CDN Version)</h2>
+    <h2>Qwen Bio (CDN v2.3.1)</h2>
     <div id="status">Initializing...</div>
     <div id="chat-box"></div>
     <div style="display: flex; gap: 5px;">
@@ -27,8 +27,8 @@
     </div>
 
     <script type="module">
-        // 1. Load the Engine from the Public CDN (Guaranteed to exist)
-        import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/index.js';
+        // 1. Load the Engine from CDN (Version 2.3.1 - Confirmed Working)
+        import { Wllama } from 'https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/index.js';
 
         let wllama;
         const statusDiv = document.getElementById('status');
@@ -36,7 +36,6 @@
         const sendBtn = document.getElementById('send-btn');
         const chatBox = document.getElementById('chat-box');
 
-        // Register the Service Worker for Offline support
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./service-worker.js');
         }
@@ -44,9 +43,9 @@
         async function init() {
             statusDiv.innerText = "Loading engine...";
             
-            // 2. Configure the Engine to use the CDN WASM file
+            // 2. Configure the Engine to use the CDN WASM file (Version 2.3.1)
             const config = {
-                "wllama.wasm": "https://cdn.jsdelivr.net/npm/@wllama/wllama@1.18.0/esm/single-thread/wllama.wasm"
+                "wllama.wasm": "https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.1/esm/single-thread/wllama.wasm"
             };
             
             wllama = new Wllama(config);
@@ -55,6 +54,7 @@
             
             try {
                 // 3. YOUR EXACT HUGGING FACE LINK
+                // Ensure this link ends in .gguf and the repo is PUBLIC
                 const modelUrl = 'https://huggingface.co/aibinshibuc/my-qwen-offline/resolve/main/qwen-bio-q4_k_m.gguf';
                 
                 await wllama.loadModelFromUrl(modelUrl, {
